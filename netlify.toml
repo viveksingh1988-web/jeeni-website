@@ -1,0 +1,15 @@
+# Netlify configuration for the Jeeni site + inline CMS.
+# The Next.js runtime turns the App Router pages and /api/* route handlers into
+# Netlify Functions, and makes Netlify Blobs available to them automatically —
+# so both the public site and the CMS editor work with no extra wiring.
+
+[build]
+  command = "next build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Required env var (set in the Netlify dashboard, not here):
+#   CMS_TOKEN = <your editor passcode>
+# Optional:
+#   LEAD_FORWARD_URL = <CRM/Zapier/HubSpot webhook for contact-form leads>

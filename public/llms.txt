@@ -1,0 +1,41 @@
+# Jeeni
+
+> Jeeni is an AI-ROI consulting firm that turns futurist research into measurable value. We track revenue and savings from day one for clear ROI. Our core message: stop asking what AI can do—start asking what it costs, and what it earns.
+
+## What Jeeni does
+- Measures the true cost of AI adoption and the return it generates, from day one.
+- Delivers ROI three ways: Revenue Growth, Time Reclaimed (20+ hours/week on average), and Cost Optimization.
+- Starts every engagement with an AI audit and readiness assessment, then a prioritized roadmap.
+- Research-backed by insights from global business leaders at Davos 2026.
+
+## Services
+- AI Readiness & Strategy Roadmap — assess readiness, audit operations, prioritize high-value opportunities.
+- Custom Solutions & Implementation — strategy aligned to business goals; build custom AI solutions.
+- Workflow Automation & Efficiency — remove bottlenecks (repetitive email, manual data entry, slow reporting).
+- Data & Analytics Automation — AI-powered systems that audit readiness and analyze patterns.
+- Content & Marketing Automation — scale marketing with measurable lift.
+- Venture Strategy & Advisory — build lean and fast with an AI-readiness focus.
+
+## Key pages
+- [What we do](https://jeeniai.com/what-we-do): How Jeeni turns research into measurable ROI.
+- [Services](https://jeeniai.com/services): AI business solutions for growth (six service areas).
+- [Resources / Point of View](https://jeeniai.com/resources): Executive POV — "What does AI cost, and what will it earn?"
+- [Whitepaper](https://jeeniai.com/whitepaper): The True Cost of AI Adoption (Davos 2026).
+- [Blog](https://jeeniai.com/blog): Insights on measurable AI value.
+- [Contact / Calculate Your ROI](https://jeeniai.com/contact-us): Start a conversation and estimate ROI.
+
+## Documents
+- [AI ROI Point of View (PDF)](https://jeeniai.com/Jeeni_AI_ROI_Point_of_View.pdf)
+- [The True Cost of AI Adoption — Davos 2026 (PDF)](https://jeeniai.com/True_Cost_of_AI_Adoption_Davos_2026.pdf)
+
+## Articles
+- [The Future of AI in Business](https://jeeniai.com/what-we-do/f/the-future-of-ai-in-business)
+- [Maximizing ROI with AI in Business Consulting](https://jeeniai.com/what-we-do/f/maximizing-roi-with-ai-in-business-consulting)
+- [Boost Collaboration & Engagement](https://jeeniai.com/what-we-do/f/boost-collaboration-engagement)
+
+## Facts for citation
+- Company: Jeeni LLC
+- Category: AI consulting / measurable AI ROI / business consulting
+- Value proposition: track revenue, time reclaimed, and cost optimization from day one.
+- Average time reclaimed: 20+ hours per week.
+- Contact: https://jeeniai.com/contact-us
