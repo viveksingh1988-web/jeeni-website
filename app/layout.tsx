@@ -151,7 +151,7 @@ export default async function RootLayout({
   // Read the path set by middleware so we can suppress chrome on /studio.
   const hdrs = await headers();
   const currentPath = hdrs.get("x-current-path") ?? "";
-  const isStudio = currentPath === "/studio";
+  const isStudio = currentPath.startsWith("/studio");
   const isAdmin =
     sessionValid((await cookies()).get(SESSION_COOKIE)?.value) ||
     isAdminEmail((await nextAuth())?.user?.email);

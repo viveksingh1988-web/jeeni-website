@@ -16,7 +16,7 @@ export default async function StudioPage({
   const isHmac = sessionValid(cookieStore.get(SESSION_COOKIE)?.value);
   const oauthSession = await nextAuth();
   const isOAuth = isAdminEmail(oauthSession?.user?.email);
-  if (isHmac || isOAuth) redirect("/");
+  if (isHmac || isOAuth) redirect("/studio/dashboard");
 
   const { error } = await searchParams;
 

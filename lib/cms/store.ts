@@ -14,6 +14,12 @@ import { migrateLegacy } from "./merge";
 
 export type Media = { bytes: Buffer; contentType: string };
 
+export type ContentVersion = {
+  id: string;
+  savedAt: string;
+  label?: string;
+};
+
 export type MediaInfo = {
   key: string;
   url: string;
@@ -37,6 +43,9 @@ export interface ContentStore {
   listLeads(): Promise<Record<string, unknown>[]>;
   storeOtp(phone: string, otp: string): Promise<void>;
   verifyAndConsumeOtp(phone: string, otp: string): Promise<boolean>;
+  listVersions(): Promise<ContentVersion[]>;
+  getVersion(id: string): Promise<ContentDoc | null>;
+  saveVersion(doc: ContentDoc, label?: string): Promise<void>;
 }
 
 export function mediaKind(contentType: string): MediaInfo["kind"] {
@@ -170,6 +179,35 @@ function netlifyStore(): ContentStore {
       if (!data || data.expires < Date.now() || data.otp !== otp) return false;
       await s.delete(key).catch(() => {});
       return true;
+    },
+    async listVersions() {
+      const s = await store("cms-versions");
+      const { blobs } = await s.list().catch(() => ({ blobs: [] }));
+      const metas = await Promise.all(
+        blobs.map(async (b: { key: string }) => {
+          const meta = await s.getWithMetadata(b.key, { type: "json" }).catch(() => null);
+          return meta ? { id: b.key, savedAt: (meta.metadata?.savedAt as string) || b.key, label: meta.metadata?.label as string | undefined } : null;
+        })
+      );
+      return (metas.filter(Boolean) as ContentVersion[]).sort((a, b) => b.savedAt.localeCompare(a.savedAt));
+    },
+    async getVersion(id) {
+      const s = await store("cms-versions");
+      const raw = await s.get(id, { type: "json" }).catch(() => null);
+      return raw ? migrateLegacy(raw) : null;
+    },
+    async saveVersion(doc, label) {
+      const s = await store("cms-versions");
+      const id = new Date().toISOString().replace(/[:.]/g, "-");
+      await s.setJSON(id, doc, { metadata: { savedAt: new Date().toISOString(), label: label || "" } });
+      // Prune: keep last 20
+      const { blobs } = await s.list().catch(() => ({ blobs: [] }));
+      if (blobs.length > 20) {
+        const sorted = blobs.map((b: { key: string }) => b.key).sort();
+        for (const old of sorted.slice(0, blobs.length - 20)) {
+          await s.delete(old).catch(() => {});
+        }
+      }
     },
   };
 }
@@ -334,6 +372,47 @@ function localStore(): ContentStore {
         return out.filter(Boolean) as Record<string, unknown>[];
       } catch {
         return [];
+      }
+    },
+    async listVersions() {
+      const p = await paths();
+      try {
+        const { readdir } = await import("node:fs/promises");
+        const dir = p.path.join(p.dir, "versions");
+        const files = await readdir(dir).catch(() => [] as string[]);
+        const metas = await Promise.all(
+          files
+            .filter((f) => f.endsWith(".json"))
+            .map(async (f) => {
+              const raw = await readJson(p.path.join(dir, f)) as { _meta?: { savedAt: string; label?: string } } | null;
+              const id = f.replace(".json", "");
+              return raw ? { id, savedAt: raw._meta?.savedAt || id, label: raw._meta?.label } : null;
+            })
+        );
+        return (metas.filter(Boolean) as ContentVersion[]).sort((a, b) => b.savedAt.localeCompare(a.savedAt));
+      } catch {
+        return [];
+      }
+    },
+    async getVersion(id) {
+      const p = await paths();
+      const dir = p.path.join(p.dir, "versions");
+      const raw = await readJson(p.path.join(dir, `${id}.json`)) as Record<string, unknown> | null;
+      if (!raw) return null;
+      const { _meta: _, ...doc } = raw;
+      return migrateLegacy(doc);
+    },
+    async saveVersion(doc, label) {
+      const p = await paths();
+      const dir = p.path.join(p.dir, "versions");
+      await ensure(dir);
+      const id = new Date().toISOString().replace(/[:.]/g, "-");
+      await writeJson(p.path.join(dir, `${id}.json`), { ...doc, _meta: { savedAt: new Date().toISOString(), label: label || "" } });
+      // Prune: keep last 20
+      const { readdir, unlink } = await import("node:fs/promises");
+      const files = (await readdir(dir).catch(() => [] as string[])).filter((f) => f.endsWith(".json")).sort();
+      for (const old of files.slice(0, Math.max(0, files.length - 20))) {
+        await unlink(p.path.join(dir, old)).catch(() => {});
       }
     },
   };

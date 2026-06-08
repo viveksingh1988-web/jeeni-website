@@ -27,13 +27,37 @@ export type Collection = {
   removedSeeds?: string[];
 };
 
+export type SEOData = {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonicalUrl?: string;
+  noIndex?: boolean;
+};
+
+export type Redirect = {
+  id: string;
+  from: string;
+  to: string;
+  permanent: boolean;
+  enabled: boolean;
+};
+
 export type ContentDoc = {
   version: 2;
   scalars: Scalars;
   collections: Record<string, Collection>;
   /** Section ids the owner has removed (hidden from the published site). */
   hidden: Record<string, boolean>;
-  settings: { crmWebhookUrl: string; crmProvider: string };
+  settings: {
+    crmWebhookUrl: string;
+    crmProvider: string;
+    siteName?: string;
+    siteDescription?: string;
+    logoUrl?: string;
+  };
+  seo?: Record<string, SEOData>;
+  redirects?: Redirect[];
   updatedAt: string;
 };
 
@@ -43,6 +67,8 @@ export const EMPTY_DOC: ContentDoc = {
   collections: {},
   hidden: {},
   settings: { crmWebhookUrl: "", crmProvider: "webhook" },
+  seo: {},
+  redirects: [],
   updatedAt: "",
 };
 

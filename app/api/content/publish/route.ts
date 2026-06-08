@@ -12,7 +12,11 @@ export async function POST(req: Request) {
   if (!await isAdminRequest(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const published = await getStore().publish();
+  const store = getStore();
+  // Auto-save a version snapshot before publishing so history is preserved.
+  const draft = await store.getDraft();
+  await store.saveVersion(draft).catch(() => {}); // non-fatal
+  const published = await store.publish();
 
   // Belt-and-suspenders for any cached routes (pages are also force-dynamic).
   revalidatePath("/", "layout");

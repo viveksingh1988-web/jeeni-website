@@ -7,6 +7,7 @@ import {
   SESSION_COOKIE,
   SESSION_TTL_MS,
 } from "@/lib/cms/auth";
+import { isAdminRequest } from "@/lib/cms/admin-check";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -64,4 +65,34 @@ export async function DELETE() {
   const res = NextResponse.json({ ok: true });
   res.cookies.set(SESSION_COOKIE, "", { path: "/", maxAge: 0 });
   return res;
+}
+
+/* PATCH /api/cms/login { currentPassword, newPassword } → change admin password.
+ * This updates the CMS_ADMIN_PASSWORD env override stored in the draft settings. */
+export async function PATCH(req: Request) {
+  if (!await isAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  let body: { currentPassword?: string; newPassword?: string };
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+  const { currentPassword, newPassword } = body;
+  if (!currentPassword || !newPassword) {
+    return NextResponse.json({ error: "Both currentPassword and newPassword are required" }, { status: 400 });
+  }
+  if (!verifyCredentials(adminUser(), currentPassword)) {
+    return NextResponse.json({ error: "Current password is incorrect" }, { status: 401 });
+  }
+  if (newPassword.length < 8) {
+    return NextResponse.json({ error: "New password must be at least 8 characters" }, { status: 400 });
+  }
+  // Store the new password in the draft doc's settings so it persists.
+  const { getStore } = await import("@/lib/cms/store");
+  const store = getStore();
+  const draft = await store.getDraft();
+  const updated = { ...draft, settings: { ...draft.settings, _adminPassword: newPassword } };
+  await store.saveDraft(updated as typeof draft);
+  // Note: this only works when CMS_ADMIN_PASSWORD is not hard-set in env.
+  return NextResponse.json({ ok: true, note: "Password change stored in draft. Set CMS_ADMIN_PASSWORD env var in production for permanent effect." });
 }
